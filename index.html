@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador para combinatoria</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* Estilos anteriores se mantienen igual */
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --info-color: #9b59b6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav {
+            background: rgba(44, 62, 80, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-button {
+            background: none;
+            border: none;
+            color: white;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .nav-button:hover::before {
+            left: 100%;
+        }
+        
+        .nav-button:hover, .nav-button:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: -2px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .nav-button[aria-selected="true"] {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            font-weight: bold;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            outline: none;
+        }
+        
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: var(--secondary-color);
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            font-size: 2rem;
+            position: relative;
+        }
+        
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+        
+        h3 {
+            color: var(--primary-color);
+            margin: 1.5rem 0 1rem 0;
+            font-size: 1.4rem;
+        }
+        
+        .concept-card {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-left: 5px solid var(--primary-color);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0 10px 10px 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .concept-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 12px 15px;
+            text-align: left;
+        }
+        .summary-table th {
+            background-color: var(--secondary-color);
+            color: white;
+            font-size: 1.1rem;
+        }
+        .summary-table td {
+            background-color: #fff;
+        }
+        .summary-table tr:nth-child(even) td {
+            background-color: #f8f9fa;
+        }
+        .summary-table tr:hover td {
+            background-color: #e9ecef;
+        }
+        
+        .formula {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border: 2px solid #e9ecef;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.3rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .formula figcaption {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        .example {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 10px 10px 0;
+            position: relative;
+        }
+        
+        .example-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .example-toggle {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .example-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .example-content.expanded {
+            max-height: 1000px;
+        }
+        
+        .application {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            border-left: 5px solid var(--success-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .simulation-container fieldset {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .simulation-container legend {
+            padding: 0 0.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+        
+        .simulation-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+        
+        input, select {
+            padding: 0.75rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        input:focus, select:focus, input:focus-visible, select:focus-visible {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:hover, button:focus-visible {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            background: var(--success-color);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+            vertical-align: middle;
+        }
+        
+        .result {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            border: 2px solid #e9ecef;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result h3 {
+            margin-top: 0;
+            color: var(--success-color);
+        }
+        
+        .calculation-steps {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+            word-break: break-all;
+        }
+        
+        .error {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f8d7da, #f1aeb5);
+            border-left: 5px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            color: #721c24;
+            transition: opacity 0.3s ease;
+        }
+        .error-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #721c24;
+            padding: 0 0.5rem;
+        }
+        
+        .repetition-inputs {
+            display: none;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .repetition-inputs.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* --- MEJORA DIAGRAMA DE VENN --- */
+        .venn-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .venn-diagram {
+            position: relative;
+            width: 300px;
+            height: 250px;
+        }
+        
+        .venn-circle {
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .venn-circle-a {
+            background: var(--primary-color);
+            width: 180px;
+            height: 180px;
+            top: 20px;
+            left: 30px;
+        }
+        
+        .venn-circle-b {
+            background: var(--success-color);
+            width: 180px;
+            height: 180px;
+            top: 20px;
+            left: 90px;
+        }
+        
+        .venn-circle-c {
+            background: var(--info-color);
+            width: 180px;
+            height: 180px;
+            top: 100px;
+            left: 60px;
+        }
+        
+        .venn-label {
+            position: absolute;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1.2rem;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .venn-label-a { top: 70px; left: 20px; }
+        .venn-label-b { top: 70px; right: 20px; }
+        .venn-label-c { bottom: 30px; left: 50%; transform: translateX(-50%); }
+        
+        .venn-intersection {
+            position: absolute;
+            font-weight: bold;
+            text-align: center;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            padding: 3px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .venn-ab { top: 90px; left: 110px; }
+        .venn-ac { top: 130px; left: 60px; }
+        .venn-bc { top: 130px; right: 60px; }
+        .venn-abc { top: 120px; left: 50%; transform: translateX(-50%); }
+        
+        /* --- MEJORAS PARA LA SECCIÓN INCLUSIÓN-EXCLUSIÓN --- */
+        .inclusion-example {
+            background: linear-gradient(135deg, #e8f4fd, #d1ecf1);
+            border-left: 5px solid var(--info-color);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .inclusion-example h3 {
+            color: var(--info-color);
+            border-bottom: 2px solid var(--info-color);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .math-expression {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .venn-explanation {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+        }
+        
+        /* --- ESTILOS PARA LA LISTA DE ARREGLOS --- */
+        #generated-arrangements-container {
+            margin-top: 1.5rem;
+        }
+        #arrangements-list {
+            list-style-type: decimal;
+            list-style-position: inside;
+            padding: 1rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            max-height: 400px;
+            overflow-y: auto;
+            column-count: 4;
+            column-gap: 2rem;
+        }
+        #arrangements-list li {
+            font-family: 'Courier New', Courier, monospace;
+            padding: 2px 0;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 992px) { #arrangements-list { column-count: 3; } }
+        @media (max-width: 768px) { #arrangements-list { column-count: 2; } }
+        @media (max-width: 480px) { #arrangements-list { column-count: 1; } }
+
+        footer {
+            background: rgba(44, 62, 80, 0.95);
+            color: white;
+            text-align: center;
+            padding: 1.5rem 1rem;
+            margin-top: 2rem;
+            backdrop-filter: blur(10px);
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container { flex-wrap: wrap; }
+            .nav-button { flex: 1 0 50%; }
+            .simulation-controls { grid-template-columns: 1fr; }
+            h1 { font-size: 2.2rem; }
+            .section { padding: 1.5rem; }
+            .venn-container { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Simulador para combinatoria</h1>
+        <!-- Subtítulo eliminado según solicitud -->
+    </header>
+    
+    <nav>
+        <div class="nav-container" role="tablist" aria-label="Navegación de secciones">
+            <button class="nav-button" role="tab" aria-selected="true" aria-controls="teoria" id="tab-teoria">Teoría</button>
+            <button class="nav-button" role="tab" aria-selected="false" aria-controls="ejemplos" id="tab-ejemplos">Ejemplos</button>
+            <button class="nav-button" role="tab" aria-selected="false" aria-controls="aplicaciones" id="tab-aplicaciones">Aplicaciones</button>
+            <button class="nav-button" role="tab" aria-selected="false" aria-controls="simulaciones" id="tab-simulaciones">Calculadora</button>
+            <button class="nav-button" role="tab" aria-selected="false" aria-controls="inclusion-exclusion" id="tab-inclusion-exclusion">Inclusión-Exclusión</button>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <!-- Sección de Teoría -->
+        <section id="teoria" role="tabpanel" aria-labelledby="tab-teoria" class="section active">
+            <h2>Teoría de Combinatoria</h2>
+
+            <h3>Tabla Resumen de Conceptos</h3>
+            <div style="overflow-x:auto;">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Concepto</th>
+                            <th>¿Importa el orden?</th>
+                            <th>¿Se permiten repeticiones?</th>
+                            <th>Fórmula Clave</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Permutación</strong> (sin repetición)</td><td>Sí</td><td>No</td><td>\(P(n) = n!\)</td></tr>
+                        <tr><td><strong>Permutación con repetición</strong></td><td>Sí</td><td>Sí</td><td>\(P(n; n_1, n_2, \ldots) = \frac{n!}{n_1! \cdot n_2! \cdot \ldots}\)</td></tr>
+                        <tr><td><strong>Variación</strong> (sin repetición)</td><td>Sí</td><td>No</td><td>\(V(n, r) = \frac{n!}{(n-r)!}\)</td></tr>
+                        <tr><td><strong>Variación con Repetición</strong></td><td>Sí</td><td>Sí</td><td>\(VR(n, r) = n^r\)</td></tr>
+                        <tr><td><strong>Combinación</strong> (sin repetición)</td><td>No</td><td>No</td><td>\(C(n, r) = \binom{n}{r}\)</td></tr>
+                        <tr><td><strong>Combinación con Repetición</strong></td><td>No</td><td>Sí</td><td>\(CR(n, r) = \binom{n+r-1}{r}\)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Factorial de un número</h3>
+                <p>El factorial de un número entero no negativo \(n\), denotado por \(n!\), es el producto de todos los números enteros positivos menores o iguales a \(n\).</p>
+                <figure class="formula"><figcaption>Definición de factorial</figcaption>\[ n! = n \times (n-1) \times (n-2) \times \cdots \times 3 \times 2 \times 1 \] </figure>
+                <p>Por convención, \(0! = 1\).</p>
+                <p><strong>Ejemplo:</strong> \(5! = 5 \times 4 \times 3 \times 2 \times 1 = 120\)</p>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Número combinatorio</h3>
+                <p>El número combinatorio \(\binom{n}{r}\), también conocido como "n sobre r" o "coeficiente binomial", representa el número de formas de elegir \(r\) elementos de un conjunto de \(n\) elementos sin importar el orden.</p>
+                <figure class="formula"><figcaption>Fórmula del número combinatorio</figcaption>\[ \binom{n}{r} = \frac{n!}{r!(n-r)!} \] </figure>
+                <p>Propiedades importantes:</p>
+                <ul>
+                    <li>\(\binom{n}{0} = \binom{n}{n} = 1\)</li>
+                    <li>\(\binom{n}{r} = \binom{n}{n-r}\)</li>
+                    <li>\(\binom{n}{r} = \binom{n-1}{r-1} + \binom{n-1}{r}\) (relación de recurrencia)</li>
+                </ul>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Permutaciones</h3>
+                <p>Arreglos de objetos donde el <strong>orden importa</strong>.</p>
+                <h4>Permutaciones sin repetición</h4>
+                <p>Número de formas de ordenar \( n \) objetos distintos.</p>
+                <figure class="formula"><figcaption>Fórmula de permutación sin repetición</figcaption>\[ P(n) = n! \] </figure>
+                
+                <h4>Permutaciones con repetición</h4>
+                <p>Número de formas de ordenar \( n \) objetos con grupos de elementos idénticos.</p>
+                <figure class="formula"><figcaption>Fórmula de permutación con repetición</figcaption>\[ P(n; n_1, n_2, \ldots) = \frac{n!}{n_1! \cdot n_2! \cdot \ldots} \] </figure>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Variaciones</h3>
+                <p>Arreglos de \( r \) objetos tomados de \( n \), donde el <strong>orden importa</strong>.</p>
+                <h4>Variaciones sin repetición</h4>
+                <p>Número de formas de seleccionar y ordenar \( r \) objetos de \( n \), sin poder repetir.</p>
+                <figure class="formula"><figcaption>Fórmula de variación sin repetición</figcaption>\[ V(n, r) = \frac{n!}{(n-r)!} \] </figure>
+
+                <h4>Variaciones con repetición</h4>
+                <p>Número de formas de seleccionar y ordenar \( r \) objetos de \( n \), con repetición permitida.</p>
+                <figure class="formula"><figcaption>Fórmula de variación con repetición</figcaption>\[ VR(n, r) = n^r \] </figure>
+            </div>
+            
+            <div class="concept-card">
+                <h3>Combinaciones</h3>
+                <p>Selecciones de \( r \) objetos tomados de \( n \), donde el <strong>orden NO importa</strong>.</p>
+                <h4>Combinaciones sin repetición</h4>
+                <p>Número de formas de seleccionar \( r \) objetos de \( n \), sin poder repetir.</p>
+                <figure class="formula"><figcaption>Fórmula de combinación sin repetición</figcaption>\[ C(n, r) = \binom{n}{r} = \frac{n!}{r!(n-r)!} \] </figure>
+                
+                <h4>Combinaciones con repetición</h4>
+                <p>Número de formas de seleccionar \( r \) objetos de \( n \), con repetición permitida.</p>
+                <figure class="formula"><figcaption>Fórmula de combinación con repetición</figcaption>\[ CR(n, r) = \binom{n + r - 1}{r} \] </figure>
+            </div>
+        </section>
+        
+        <section id="ejemplos" role="tabpanel" aria-labelledby="tab-ejemplos" class="section">
+             <h2>Ejemplos Resueltos</h2>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 1: Permutaciones sin repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> ¿De cuántas maneras se pueden ordenar 5 libros diferentes en un estante?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> Como los libros son diferentes y el orden importa, usamos permutaciones sin repetición.</p>
+                     <figure class="formula">\[ P(5) = 5! = 5 \times 4 \times 3 \times 2 \times 1 = 120 \] </figure>
+                     <p>Hay 120 maneras diferentes de ordenar los 5 libros.</p>
+                 </div>
+             </div>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 2: Permutaciones con repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> ¿Cuántas palabras diferentes (con o sin sentido) se pueden formar con las letras de la palabra "MISSISSIPPI"?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> La palabra "MISSISSIPPI" tiene 11 letras con las siguientes repeticiones:</p>
+                     <ul>
+                         <li>M: 1 vez</li>
+                         <li>I: 4 veces</li>
+                         <li>S: 4 veces</li>
+                         <li>P: 2 veces</li>
+                     </ul>
+                     <p>Usamos la fórmula de permutaciones con repetición:</p>
+                     <figure class="formula">\[ P(11; 1, 4, 4, 2) = \frac{11!}{1! \cdot 4! \cdot 4! \cdot 2!} = \frac{39,916,800}{1 \cdot 24 \cdot 24 \cdot 2} = \frac{39,916,800}{1,152} = 34,650 \] </figure>
+                     <p>Se pueden formar 34,650 palabras diferentes.</p>
+                 </div>
+             </div>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 3: Variaciones sin repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> En una carrera de 8 corredores, ¿de cuántas maneras pueden repartirse las medallas de oro, plata y bronce?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> Seleccionamos 3 corredores de 8, y el orden importa (oro, plata, bronce). Usamos variaciones sin repetición.</p>
+                     <figure class="formula">\[ V(8, 3) = \frac{8!}{(8-3)!} = \frac{8!}{5!} = 8 \times 7 \times 6 = 336 \] </figure>
+                     <p>Hay 336 maneras diferentes de repartir las medallas.</p>
+                 </div>
+             </div>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 4: Variaciones con repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> ¿Cuántas contraseñas de 4 dígitos se pueden formar con los números del 0 al 9?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> Cada dígito puede repetirse y el orden importa. Usamos variaciones con repetición.</p>
+                     <figure class="formula">\[ VR(10, 4) = 10^4 = 10,000 \] </figure>
+                     <p>Se pueden formar 10,000 contraseñas diferentes.</p>
+                 </div>
+             </div>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 5: Combinaciones sin repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> ¿De cuántas maneras se puede elegir un comité de 3 personas de un grupo de 10?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> Seleccionamos 3 personas de 10, y el orden no importa. Usamos combinaciones sin repetición.</p>
+                     <figure class="formula">\[ C(10, 3) = \binom{10}{3} = \frac{10!}{3!(10-3)!} = \frac{10!}{3! \cdot 7!} = \frac{10 \times 9 \times 8}{3 \times 2 \times 1} = 120 \] </figure>
+                     <p>Hay 120 maneras diferentes de formar el comité.</p>
+                 </div>
+             </div>
+             
+             <div class="example">
+                 <div class="example-header">
+                     <h3>Ejemplo 6: Combinaciones con repetición</h3>
+                     <button class="example-toggle">Ver solución</button>
+                 </div>
+                 <p><strong>Problema:</strong> En una heladería hay 5 sabores diferentes. ¿De cuántas maneras se pueden elegir 3 bolas de helado?</p>
+                 <div class="example-content">
+                     <p><strong>Solución:</strong> Se pueden repetir sabores y el orden no importa. Usamos combinaciones con repetición.</p>
+                     <figure class="formula">\[ CR(5, 3) = \binom{5+3-1}{3} = \binom{7}{3} = \frac{7!}{3! \cdot 4!} = \frac{7 \times 6 \times 5}{3 \times 2 \times 1} = 35 \] </figure>
+                     <p>Hay 35 maneras diferentes de elegir 3 bolas de helado.</p>
+                 </div>
+             </div>
+        </section>
+        
+        <section id="aplicaciones" role="tabpanel" aria-labelledby="tab-aplicaciones" class="section">
+            <h2>Aplicaciones Prácticas</h2>
+            <div class="application"><h3>Informática y Criptografía</h3><p>La seguridad de una contraseña de 8 caracteres alfanuméricos (62 opciones) se basa en las variaciones con repetición: \( 62^8 \), un número de más de 200 trillones.</p></div>
+            <div class="application"><h3>Probabilidad y Juegos de Azar</h3><p>La probabilidad de obtener "póker" (5 cartas del mismo palo) en una baraja de 52 se calcula con combinaciones: \( \frac{\binom{4}{1} \times \binom{13}{5}}{\binom{52}{5}} \).</p></div>
+            <div class="application"><h3>Genética y Biología</h3><p>El número de posibles secuencias de ADN de longitud n (con 4 bases posibles) se calcula con permutaciones con repetición: \( 4^n \).</p></div>
+        </section>
+        
+        <section id="inclusion-exclusion" role="tabpanel" aria-labelledby="tab-inclusion-exclusion" class="section">
+            <h2>Principio de Inclusión-Exclusión</h2>
+            <div class="concept-card">
+                <h3>¿Qué es?</h3>
+                <p>Una técnica para contar los elementos en la unión de varios conjuntos, sumando los tamaños individuales, restando las intersecciones, sumando las intersecciones de a tres, etc.</p>
+                <figure class="formula"><figcaption>Fórmula para dos conjuntos</figcaption>\[ |A \cup B| = |A| + |B| - |A \cap B| \] </figure>
+                <figure class="formula"><figcaption>Fórmula para tres conjuntos</figcaption>\[ |A \cup B \cup C| = |A| + |B| + |C| - |A \cap B| - |A \cap C| - |B \cap C| + |A \cap B \cap C| \] </figure>
+            </div>
+            
+            <div class="inclusion-example">
+                <h3>Ejemplo: Dos conjuntos</h3>
+                <p>En un grupo, \( |M| = 60 \) estudian matemáticas, \( |F| = 40 \) física y \( |M \cap F| = 20 \) ambas. ¿Cuántos estudian al menos una?</p>
+                <div class="math-expression">\[ |M \cup F| = |M| + |F| - |M \cap F| = 60 + 40 - 20 = 80 \]</div>
+                <div class="venn-explanation">
+                    <p><strong>Explicación del diagrama:</strong></p>
+                    <ul>
+                        <li>Solo Matemáticas: \( |M| - |M \cap F| = 60 - 20 = 40 \)</li>
+                        <li>Solo Física: \( |F| - |M \cap F| = 40 - 20 = 20 \)</li>
+                        <li>Ambas materias: \( |M \cap F| = 20 \)</li>
+                    </ul>
+                </div>
+                <div class="visualization">
+                    <h4>Visualización con Diagrama de Venn</h4>
+                    <div class="venn-container">
+                        <div class="venn-diagram">
+                            <div class="venn-circle venn-circle-a"></div>
+                            <div class="venn-circle venn-circle-b"></div>
+                            <div class="venn-label venn-label-a">40<br><small>(Solo M)</small></div>
+                            <div class="venn-label venn-label-b">20<br><small>(Solo F)</small></div>
+                            <div class="venn-intersection venn-ab">20<br><small>(Ambas)</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="inclusion-example">
+                <h3>Ejemplo: Tres conjuntos</h3>
+                <p>En una encuesta a 100 estudiantes: \( |M| = 45 \) estudian matemáticas, \( |F| = 38 \) física, \( |Q| = 42 \) química, \( |M \cap F| = 15 \) estudian matemáticas y física, \( |M \cap Q| = 18 \) matemáticas y química, \( |F \cap Q| = 12 \) física y química, y \( |M \cap F \cap Q| = 8 \) estudian las tres materias. ¿Cuántos estudian al menos una materia?</p>
+                <div class="math-expression">\[ |M \cup F \cup Q| = |M| + |F| + |Q| - |M \cap F| - |M \cap Q| - |F \cap Q| + |M \cap F \cap Q| \]</div>
+                <div class="math-expression">\[ |M \cup F \cup Q| = 45 + 38 + 42 - 15 - 18 - 12 + 8 = 88 \]</div>
+                <div class="venn-explanation">
+                    <p><strong>Desglose por regiones:</strong></p>
+                    <ul>
+                        <li>Solo Matemáticas: \( 45 - (7 + 8 + 10) = 20 \)</li>
+                        <li>Solo Física: \( 38 - (7 + 8 + 4) = 19 \)</li>
+                        <li>Solo Química: \( 42 - (10 + 8 + 4) = 20 \)</li>
+                        <li>Matemáticas y Física (solo): \( 15 - 8 = 7 \)</li>
+                        <li>Matemáticas y Química (solo): \( 18 - 8 = 10 \)</li>
+                        <li>Física y Química (solo): \( 12 - 8 = 4 \)</li>
+                        <li>Todas las materias: \( 8 \)</li>
+                    </ul>
+                </div>
+                <div class="visualization">
+                    <h4>Visualización con Diagrama de Venn</h4>
+                    <div class="venn-container">
+                        <div class="venn-diagram">
+                            <div class="venn-circle venn-circle-a"></div>
+                            <div class="venn-circle venn-circle-b"></div>
+                            <div class="venn-circle venn-circle-c"></div>
+                            <div class="venn-label venn-label-a">20<br><small>(Solo M)</small></div>
+                            <div class="venn-label venn-label-b">19<br><small>(Solo F)</small></div>
+                            <div class="venn-label venn-label-c">20<br><small>(Solo Q)</small></div>
+                            <div class="venn-intersection venn-ab">7<br><small>(M y F)</small></div>
+                            <div class="venn-intersection venn-ac">10<br><small>(M y Q)</small></div>
+                            <div class="venn-intersection venn-bc">4<br><small>(F y Q)</small></div>
+                            <div class="venn-intersection venn-abc">8<br><small>(Todas)</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="simulaciones" role="tabpanel" aria-labelledby="tab-simulaciones" class="section">
+            <h2>Calculadora de Combinatoria</h2>
+            <div class="simulation-container">
+                <fieldset>
+                    <legend>Parámetros de Cálculo</legend>
+                    <div class="simulation-controls">
+                        <div class="control-group"><label for="concept-type">Tipo de concepto:</label><select id="concept-type"><option value="permutation">Permutación</option><option value="variation">Variación</option><option value="combination">Combinación</option></select></div>
+                        <div class="control-group"><label for="repetition">Repetición:</label><select id="repetition"><option value="without">Sin repetición</option><option value="with">Con repetición</option></select></div>
+                        <div class="control-group"><label for="n-value">Valor de n (total):</label><input type="number" id="n-value" min="0" max="1000" value="4"></div>
+                        <div class="control-group" id="r-group"><label for="r-value">Valor de r (a elegir):</label><input type="number" id="r-value" min="0" max="1000" value="3"></div>
+                    </div>
+                    <div class="repetition-inputs" id="repetition-inputs">
+                        <h4>Repeticiones específicas:</h4><label for="repetition-values">Ingresa los tamaños de cada grupo de elementos repetidos (separados por comas):</label>
+                        <input type="text" id="repetition-values" placeholder="Ej: 4,4,2,1 (para MISSISSIPPI)"><small>La suma de los valores debe ser igual a n.</small>
+                    </div>
+                </fieldset>
+                <button id="calculate-btn">Calcular</button>
+                <div id="error-container"></div>
+                <div class="result" id="result" style="display: none;" aria-live="polite">
+                    <h3>Resultado</h3>
+                    <p id="result-text"></p>
+                    <div class="calculation-steps" id="calculation-steps"></div>
+                    <div id="generated-arrangements-container"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <p>Recurso educativo desarrollado por Santiago Martin Fiore. Más contenidos en: <a href="https://sites.google.com/view/santiago-fiore/portada" target="_blank">https://sites.google.com/view/santiago-fiore/portada</a></p>
+    </footer>
+
+    <script>
+    // El código JavaScript se mantiene exactamente igual
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- NAVEGACIÓN POR PESTAÑAS ---
+        const tabs = document.querySelectorAll('[role="tab"]');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', e => {
+                const targetPanelId = e.currentTarget.getAttribute('aria-controls');
+                tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+                e.currentTarget.setAttribute('aria-selected', 'true');
+                document.querySelectorAll('[role="tabpanel"]').forEach(p => p.classList.remove('active'));
+                document.getElementById(targetPanelId).classList.add('active');
+                if (window.MathJax) MathJax.typesetPromise();
+            });
+        });
+
+        // --- EJEMPLOS EXPANDIBLES ---
+        document.querySelectorAll('.example-toggle').forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.parentElement.parentElement.querySelector('.example-content');
+                content.classList.toggle('expanded');
+                this.textContent = content.classList.contains('expanded') ? 'Ocultar solución' : 'Ver solución';
+            });
+        });
+
+        // --- LÓGICA DE LA CALCULADORA ---
+        const conceptTypeSelect = document.getElementById('concept-type');
+        const repetitionSelect = document.getElementById('repetition');
+        const calculateBtn = document.getElementById('calculate-btn');
+        
+        function updateCalculatorInputs() {
+            const conceptType = conceptTypeSelect.value;
+            const repetition = repetitionSelect.value;
+            const rGroup = document.getElementById('r-group');
+            const repetitionInputs = document.getElementById('repetition-inputs');
+            
+            const isPermutationWithoutRep = conceptType === 'permutation' && repetition === 'without';
+            rGroup.style.display = isPermutationWithoutRep ? 'none' : 'flex';
+            repetitionInputs.classList.toggle('show', conceptType === 'permutation' && repetition === 'with');
+        }
+        
+        [conceptTypeSelect, repetitionSelect].forEach(el => el.addEventListener('change', updateCalculatorInputs));
+        updateCalculatorInputs();
+
+        const factorialBigInt = n => {
+            if (n < 0n) throw new Error('Factorial negativo');
+            let r = 1n; for (let i = 2n; i <= n; i++) r *= i; return r;
+        };
+
+        calculateBtn.addEventListener('click', function() {
+            clearError();
+            document.getElementById('result').style.display = 'none';
+
+            const concept = conceptTypeSelect.value, repetition = repetitionSelect.value;
+            const n = parseInt(document.getElementById('n-value').value), r = parseInt(document.getElementById('r-value').value);
+            
+            if (isNaN(n) || n < 0) return showError('n debe ser un entero no negativo.');
+            if (!(concept === 'permutation' && repetition === 'without') && (isNaN(r) || r < 0)) return showError('r debe ser un entero no negativo.');
+
+            const n_big = BigInt(n), r_big = BigInt(r);
+            let result = 0n, formula = '', steps = '', arrangements = [];
+
+            try {
+                // --- CÁLCULOS ---
+                if (concept === 'permutation' && repetition === 'without') {
+                    result = factorialBigInt(n_big);
+                    formula = `P(${n}) = ${n}!`;
+                } else if (concept === 'permutation' && repetition === 'with') {
+                    const reps = document.getElementById('repetition-values').value.split(',').map(x => parseInt(x.trim())).filter(num => !isNaN(num) && num > 0);
+                    if (reps.reduce((a, b) => a + b, 0) !== n) return showError('La suma de las repeticiones debe ser igual a n.');
+                    let den = 1n; reps.forEach(rep => den *= factorialBigInt(BigInt(rep)));
+                    result = factorialBigInt(n_big) / den;
+                    formula = `P(${n}; ${reps.join(',')}) = \\frac{${n}!}{${reps.map(i => `${i}!`).join(' \\cdot ')}}`;
+                } else if (concept === 'variation' && repetition === 'without') {
+                    if (r > n) return showError('r no puede ser mayor que n.');
+                    result = factorialBigInt(n_big) / factorialBigInt(n_big - r_big);
+                    formula = `V(${n}, ${r}) = \\frac{${n}!}{(${n}-${r})!}`;
+                } else if (concept === 'variation' && repetition === 'with') {
+                    result = n_big ** r_big;
+                    formula = `VR(${n}, ${r}) = ${n}^{${r}}`;
+                } else if (concept === 'combination' && repetition === 'without') {
+                    if (r > n) return showError('r no puede ser mayor que n.');
+                    result = factorialBigInt(n_big) / (factorialBigInt(r_big) * factorialBigInt(n_big - r_big));
+                    formula = `C(${n}, ${r}) = \\binom{${n}}{${r}}`;
+                } else if (concept === 'combination' && repetition === 'with') {
+                    const N = n_big + r_big - 1n;
+                    result = factorialBigInt(N) / (factorialBigInt(r_big) * factorialBigInt(N - r_big));
+                    formula = `CR(${n}, ${r}) = \\binom{${n}+${r}-1}{${r}}`;
+                }
+                
+                steps = `Total de posibilidades = ${result.toLocaleString()}`;
+
+                // --- GENERACIÓN DE ARREGLOS (NUEVA FUNCIONALIDAD) ---
+                if (result > 0n && result < 5042n) {
+                    const elements = Array.from({ length: n }, (_, i) => i + 1);
+                    if (concept === 'permutation' && repetition === 'without') {
+                        arrangements = generatePermutations(elements, n);
+                    } else if (concept === 'permutation' && repetition === 'with') {
+                        const reps = document.getElementById('repetition-values').value.split(',').map(x => parseInt(x.trim())).filter(num => !isNaN(num) && num > 0);
+                        const initialSet = [];
+                        reps.forEach((count, i) => { for(let j=0; j<count; j++) initialSet.push(i+1); });
+                        arrangements = generatePermutationsWithRep(initialSet);
+                    } else if (concept === 'variation' && repetition === 'without') {
+                        arrangements = generatePermutations(elements, r);
+                    } else if (concept === 'variation' && repetition === 'with') {
+                        arrangements = generateVariationsWithRep(elements, r);
+                    } else if (concept === 'combination' && repetition === 'without') {
+                        arrangements = generateCombinations(elements, r);
+                    } else if (concept === 'combination' && repetition === 'with') {
+                        arrangements = generateCombinationsWithRep(elements, r);
+                    }
+                }
+                showResult(formula, result.toLocaleString(), steps, arrangements);
+            } catch (error) { showError('Error en el cálculo: ' + error.message); }
+        });
+
+        // --- ALGORITMOS DE GENERACIÓN ---
+        const generatePermutations = (arr, k) => {
+            const result = [];
+            const backtrack = (current) => {
+                if (current.length === k) { result.push([...current]); return; }
+                for (const item of arr) {
+                    if (!current.includes(item)) { current.push(item); backtrack(current); current.pop(); }
+                }
+            };
+            backtrack([]); return result;
+        };
+        const generateCombinations = (arr, k) => {
+            const result = [];
+            const backtrack = (start, current) => {
+                if (current.length === k) { result.push([...current]); return; }
+                for (let i = start; i < arr.length; i++) {
+                    current.push(arr[i]); backtrack(i + 1, current); current.pop();
+                }
+            };
+            backtrack(0, []); return result;
+        };
+        const generateVariationsWithRep = (arr, k) => {
+            const result = [];
+            const backtrack = (current) => {
+                if (current.length === k) { result.push([...current]); return; }
+                for (const item of arr) { current.push(item); backtrack(current); current.pop(); }
+            };
+            backtrack([]); return result;
+        };
+        const generateCombinationsWithRep = (arr, k) => {
+            const result = [];
+            const backtrack = (start, current) => {
+                if (current.length === k) { result.push([...current]); return; }
+                for (let i = start; i < arr.length; i++) {
+                    current.push(arr[i]); backtrack(i, current); current.pop();
+                }
+            };
+            backtrack(0, []); return result;
+        };
+        const generatePermutationsWithRep = (arr) => {
+            const result = []; const freq = {};
+            for(const item of arr) freq[item] = (freq[item] || 0) + 1;
+            const backtrack = (current) => {
+                if(current.length === arr.length) { result.push([...current]); return; }
+                for(const key in freq) {
+                    if(freq[key] > 0) {
+                        current.push(Number(key)); freq[key]--;
+                        backtrack(current);
+                        freq[key]++; current.pop();
+                    }
+                }
+            };
+            backtrack([]); return result;
+        };
+
+        // --- FUNCIONES DE UI ---
+        function showResult(formula, resultText, steps, arrangements) {
+            const resultContainer = document.getElementById('result');
+            resultContainer.style.display = 'block';
+            document.getElementById('result-text').innerHTML = `<strong>Fórmula:</strong> \\( ${formula} \\) <button class="copy-btn" title="Copiar resultado" onclick="copyResult('${resultText}')">Copiar</button>`;
+            document.getElementById('calculation-steps').innerHTML = steps;
+            
+            const arrangementsContainer = document.getElementById('generated-arrangements-container');
+            if (arrangements && arrangements.length > 0) {
+                arrangementsContainer.innerHTML = `
+                    <h3>Posibles Arreglos (${arrangements.length}):</h3>
+                    <ol id="arrangements-list">
+                        ${arrangements.map(item => `<li>[${item.join(', ')}]</li>`).join('')}
+                    </ol>`;
+            } else {
+                arrangementsContainer.innerHTML = '';
+            }
+
+            if (window.MathJax) MathJax.typesetPromise([document.getElementById('result-text')]);
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        const showError = message => {
+            clearError();
+            const errorContainer = document.getElementById('error-container');
+            errorContainer.innerHTML = `<div class="error" role="alert"><span><strong>Error:</strong> ${message}</span><button class="error-close-btn" aria-label="Cerrar" onclick="this.parentElement.remove()">&times;</button></div>`;
+        };
+        const clearError = () => { document.getElementById('error-container').innerHTML = ''; };
+    });
+
+    function copyResult(text) {
+        navigator.clipboard.writeText(text.replace(/,/g, '')).then(() => alert('¡Resultado copiado!'))
+        .catch(() => alert('Error al copiar.'));
+    }
+    </script>
+</body>
+</html>
